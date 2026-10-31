@@ -16,7 +16,13 @@ raw = raw
 const b = raw.split('mdlw-item-B7BV57"')[1];
 if (!b) throw new Error('Nenhum item encontrado. O MDL pode ter bloqueado a requisição.');
 
-const m = re => ((b.match(re) || [])[1] || '').trim();
+const m = re =>
+  ((b.match(re) || [])[1] || '')
+    .replace(/\\+[trnx]/g, ' ')
+    .replace(/\\+/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
 const ep = m(/mdlw-ep-seen">\((.*?)\)/);
 const [seen, total] = ep.split('/').map(Number);
 const it = {

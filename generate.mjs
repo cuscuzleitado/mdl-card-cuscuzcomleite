@@ -7,12 +7,16 @@ const UA = { 'User-Agent': 'Mozilla/5.0' };
 const esc = s => s.replace(/&amp;/g, '&').replace(/[<>&"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]));
 
 let raw = await (await fetch(SRC, { headers: UA })).text();
-raw = raw.replace(/\\"/g, '"').replace(/\\\//g, '/').replace(/\\n/g, '');
+raw = raw
+  .replace(/\\u([0-9a-fA-F]{4})/g, (_, h) => String.fromCharCode(parseInt(h, 16)))
+  .replace(/\\"/g, '"')
+  .replace(/\\\//g, '/')
+  .replace(/\\[trn]/g, '');
 
 const b = raw.split('mdlw-item-B7BV57"')[1];
 if (!b) throw new Error('Nenhum item encontrado. O MDL pode ter bloqueado a requisição.');
 
-const m = re => (b.match(re) || [])[1] || '';
+const m = re => ((b.match(re) || [])[1] || '').trim();
 const ep = m(/mdlw-ep-seen">\((.*?)\)/);
 const [seen, total] = ep.split('/').map(Number);
 const it = {
@@ -39,7 +43,7 @@ try {
 } catch {}
 
 const W = 460, H = 182, TX = 114;
-const starsRow = [0, 1, 2, 3, 4].map(i => star(TX + 7 + i * 18, 134)).map(p => p);
+const starsRow = [0, 1, 2, 3, 4].map(i => star(TX + 7 + i * 18, 134));
 const grayStars = starsRow.map(p => `<polygon points="${p}" fill="#44444c"/>`).join('');
 const goldStars = starsRow.map(p => `<polygon points="${p}" fill="#ffd600"/>`).join('');
 
